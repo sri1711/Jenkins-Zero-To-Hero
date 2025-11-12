@@ -5,8 +5,6 @@ pipeline {
         PATH = "/Users/s0s0qhm/.rd/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH" // Docker CLI path
         DOCKER_IMAGE = "sri1711/ultimate-cicd:${BUILD_NUMBER}"
         SONAR_URL = "http://127.0.0.1:9000"
-        GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
-        GIT_USER_NAME = "sri1711"
     }
 
     stages {
@@ -45,27 +43,12 @@ pipeline {
                         cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
                         docker build -t ${DOCKER_IMAGE} .
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push ${DOCKER_IMAGE}
                     '''
                 }
             }
         }
 
-        stage('Update Deployment YAML') {
-            steps {
-                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                        cd java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests
-                        git config user.email "abhishek.xyz@gmail.com"
-                        git config user.name "Abhishek Veeramalla"
-                        sed -i '' "s/replaceImageTag/${BUILD_NUMBER}/g" deployment.yml
-                        git add deployment.yml
-                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                    '''
-                }
-            }
-        }
+
 
     }
 
